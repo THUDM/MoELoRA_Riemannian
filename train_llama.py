@@ -209,13 +209,14 @@ def main(optimize_strategy, descent_strategy):
     global MyDataset
     global DATASET_NAME
     global print_log
+
     save_path = "./saved_lora/" + "_".join([
         DATASET_NAME,
         optimize_strategy,
         descent_strategy,
         datetime.now().strftime("%y%m%d.%H.%M")
     ])
-    os.mkdir(save_path)
+    os.makedirs(save_path, exist_ok=True)
     torch_rank = torch.distributed.get_rank()
     print_log = wrap_print_function(file_path = save_path + "/log."+str(torch_rank))
     print_log(f">> world size:{world_size}; torch rank:{torch_rank}; OS local rank:{local_rank}; device:{device};\n", end = "")
@@ -288,7 +289,7 @@ def main(optimize_strategy, descent_strategy):
 
     # model configuration
     tokenizer, model = load_model(
-        pretrained_model_path = './Llama/Llama-3.2-3B',
+        pretrained_model_path = '/d2/mxy/Models/Llama-3.2-3B',
         lora_r = candidate_configs[optimize_strategy]["expert_rank"],
         lora_alpha = 16,
         lora_dropout = 0.05,
