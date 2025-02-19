@@ -2,7 +2,7 @@
 Source code of paper: A Stronger Mixture of Low-Rank Experts for Fine-Tuning Foundation Models.
 
 ## How to Run
-```
+```bash
 # CUDA_VISIBLE_DEVICES=[GPU ID] python -m torch.distributed.launch --nproc_per_node 1 [TRAINING_SCRIPT] [DATASET] [OPTIMIZER] [METHOD]
 
 # run MoE with classic Riemannian preconditioners (the SGD optimizer)
