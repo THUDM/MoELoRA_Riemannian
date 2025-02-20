@@ -12,7 +12,7 @@ Source code of paper: A Stronger Mixture of Low-Rank Experts for Fine-Tuning Fou
    conda activate moelora_riemannian
    pip install -r requirements.txt
    ```
-## Prepare Data
+## Prepare ScienceQA Data
 
 1. Prepare the datasets by this script:
    ```bash
