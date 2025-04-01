@@ -435,6 +435,24 @@ class CommonsenseQADataset(MultipleChoiceQADataset):
         test_dataset = CommonsenseQADataset(data = dev_set, tokenizer = tokenizer, max_length = max_length, dataset_type = "generate")
         return train_dataset, val_dataset, test_dataset
 
+class OpenBookQADataset(MultipleChoiceQADataset):
+    MAX_SAMPLE_INPUT_LENGTH = 256
+    MAX_SAMPLE_OUTPUT_LENGTH = 10
+    prompt_template = {
+        "prompt_input": "Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n### Instruction:\n{instruction}\n\n### Input:\n{input}\n\n### Response:\n",
+        "prompt_no_input": "Below is an instruction that describes a task. Write a response that appropriately completes the request.\n\n### Instruction:\n{instruction}\n\n### Response:\n",
+        "response_split": "### Response:",
+        "response_template": r'The answer is ([A-Z]).',
+        "failed_str": "FAILD"
+    }
+    @classmethod
+    def load_dataset(cls, data_path, tokenizer, max_length):
+        data = load_from_disk(data_path)
+        train_dataset = ScienceQADataset(data = data["train"], tokenizer = tokenizer, max_length = max_length, dataset_type = "train")
+        val_dataset = ScienceQADataset(data = data["validation"], tokenizer = tokenizer, max_length = max_length, dataset_type = "validation")
+        test_dataset = ScienceQADataset(data = data["test"], tokenizer = tokenizer, max_length = max_length, dataset_type = "generate")
+        return train_dataset, val_dataset, test_dataset
+
 class CoLADataset(MultipleChoiceQADataset):
     MAX_SAMPLE_INPUT_LENGTH = 128
     MAX_SAMPLE_OUTPUT_LENGTH = 10
@@ -632,6 +650,46 @@ class QQPDataset(MultipleChoiceQADataset):
         train_dataset = QQPDataset(data = res[0], tokenizer = tokenizer, max_length = max_length, dataset_type = "train")
         val_dataset = QQPDataset(data = res[1], tokenizer = tokenizer, max_length = max_length, dataset_type = "validation")
         test_dataset = QQPDataset(data = res[1], tokenizer = tokenizer, max_length = max_length, dataset_type = "generate")
+        return train_dataset, val_dataset, test_dataset
+
+class MNLIDataset(MultipleChoiceQADataset):
+    MAX_SAMPLE_INPUT_LENGTH = 256
+    MAX_SAMPLE_OUTPUT_LENGTH = 10
+    prompt_template = {
+        "prompt_no_input": "Given the following premise and hypothesis, determine their relationship (entailment, contradiction or neutral).\n\n{instruction}\n\n### Answer:\n",
+        "response_split": "### Answer:",
+        "response_template": r"The relation is (entailment|contradiction|neutral).",
+        "failed_str": "FAILD"
+    }
+    @classmethod
+    def load_dataset(cls, data_path, tokenizer, max_length):
+        train_file = open(os.path.join(data_path, "train.tsv"))
+        dev_file1 = open(os.path.join(data_path, "dev_matched.tsv"))
+        dev_file2 = open(os.path.join(data_path, "dev_mismatched.tsv"))
+        res = []
+        csv.field_size_limit(sys.maxsize)
+        for data_file in [train_file, dev_file1, dev_file2]:
+            data_reader = csv.reader(data_file, delimiter = "\t")
+            data_set = []
+            for line in tqdm(data_reader):
+                label = line[-1].strip()
+                if label not in {"entailment", "contradiction", "neutral"}:
+                    continue
+                answer = "The relation is " + label + "."
+                sent1 = line[8]
+                sent2 = line[9]
+                instruction = "Premise: " + sent1 + "\n" + "Hypothesis: " + sent2
+                sample = {"instruction": instruction, "output": answer, "input": ""}
+                data_set.append(sample)
+            data_file.close()
+            res.append(data_set)
+        train_split = res[0]
+        dev_split = res[1] + res[2]
+        #random.shuffle(dev_split)
+        dev_split = dev_split[::15]
+        train_dataset = MNLIDataset(data = train_split, tokenizer = tokenizer, max_length = max_length, dataset_type = "train")
+        val_dataset = MNLIDataset(data = dev_split, tokenizer = tokenizer, max_length = max_length, dataset_type = "validation")
+        test_dataset = MNLIDataset(data = dev_split, tokenizer = tokenizer, max_length = max_length, dataset_type = "generate")
         return train_dataset, val_dataset, test_dataset
 
 class QNLIDataset(MultipleChoiceQADataset):
