@@ -1,6 +1,10 @@
 # A Stronger Mixture of Low-Rank Experts for Fine-Tuning Foundation Models
 Source code of paper: A Stronger Mixture of Low-Rank Experts for Fine-Tuning Foundation Models.
 
+<p align="center">
+📃 <a href="https://arxiv.org/abs/2502.15828" target="_blank">[Paper]</a> 
+</p>
+
 ## Install
 1. Clone this repository
    ```bash
@@ -46,4 +50,16 @@ CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node 1 tra
 
 # train MoE-LoRA with our method (the AdamW optimizer)
 CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node 1 train_llama.py ScienceQA adamw ourmethod
+```
+## Citation
+
+If you find our survey and repository helpful, please kindly cite our paper:
+
+```
+@article{sun2025stronger,
+  title={A Stronger Mixture of Low-Rank Experts for Fine-Tuning Foundation Models},
+  author={Sun, Mengyang and Wang, Yihao and Feng, Tao and Zhang, Dan and Zhu, Yifan and Tang, Jie},
+  journal={arXiv preprint arXiv:2502.15828},
+  year={2025}
+}
 ```
